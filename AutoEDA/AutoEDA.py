@@ -46,6 +46,7 @@ import os
 from matplotlib.gridspec import GridSpec
 import scipy.stats as stats
 import statsmodels.api as sm
+from matplotlib.widgets import Slider
 
 
 def prova_prova():
@@ -239,6 +240,10 @@ def numerical_vs_numerical(dataframe, column_num1, column_num2, palette, ax, ord
     
 
 def two_categorical_vs_categorical(dataframe, column_cat1, column_cat2, column_cat3, palette, ax, order):
+    '''
+    2 Categorical vs Categorical target --> Count + pct for each category and target category; Count + pct for each target category; For each value of target (column_cat3), two heatmaps: one with percentages of the corresponding value for each pair of category values, and one with the difference between the first one, and the pct of the target value without grouping (baseline).
+    '''
+     
     
     target_values = dataframe[column_cat3].unique().tolist()
     n_target_values = len(target_values)
@@ -262,8 +267,9 @@ def two_categorical_vs_categorical(dataframe, column_cat1, column_cat2, column_c
     hue = column_cat3
     
     fig = plt.figure(constrained_layout=True, figsize=(15,10))
+    fig.suptitle("Variables summary: {} - {} vs {} ".format(column_cat1, column_cat2, column_cat3), fontsize=20)
 
-    gs = GridSpec(n_target_values + 1, 2, figure=fig)
+    gs = GridSpec(2, 2, figure=fig)
     ax1 = fig.add_subplot(gs[0, :])
     axs = []
     for i in range(1, n_target_values+1):
@@ -279,7 +285,7 @@ def two_categorical_vs_categorical(dataframe, column_cat1, column_cat2, column_c
     table.set_fontsize(14)
     table.scale(1.1, 1.1)
     ax1.axis('off')
-    fig.suptitle("Variables summary: {} - {} vs {} ".format(column_cat1, column_cat2, column_cat3), fontsize=20)
+    
     
     #Building heatmaps
     for i in range(0, n_target_values):
@@ -302,8 +308,122 @@ def two_categorical_vs_categorical(dataframe, column_cat1, column_cat2, column_c
 
 
 
+def two_categorical_vs_numerical(dataframe, column_cat1, column_cat2, column_num, palette, ax, order):
+    '''
+    2 categorical vs numerical target --> Grouped boxplot with x=categorical, y=target, hue=categorical
+    '''
+    d1 = dataframe[column_num].describe()
+    d2 = dataframe.groupby(column_cat1)[column_num].describe().transpose()
+    d3 = dataframe.groupby(column_cat2)[column_num].describe().transpose()
+    d4 = dataframe.groupby([column_cat1, column_cat2])[column_num].describe().transpose()
+    d2.columns = ["{}_{}_{}".format(column_num, column_cat1,c) for c in d2.columns]
+    d3.columns = ["{}_{}_{}".format(column_num, column_cat2,c) for c in d3.columns]
+    #["{}_{}{}_{}".format(column_num, levelvalues_name,c, ) for c in levelvalues_categories]
+    names = d4.columns.names
+    cats = list(d4.columns)
+    combined = [list(zip(names,a)) for a in cats]
+    combined2 = ["{}_{}:{}_{}:{}".format(column_num,x[0][0], x[0][1], x[1][0], x[1][1]) for x in combined]
+    d4.columns = combined2
+    df_describe_def = pd.concat([d1, d2, d3, d4], axis=1)
+    df_describe_def = df_describe_def.applymap('{:,.2f}'.format)
+    
+    
+    fig = plt.figure(constrained_layout=True, figsize=(15,10))
+    fig.suptitle("Variables summary: {} - {} vs {} ".format(column_cat1, column_cat2, column_num), fontsize=20)
+
+    gs = GridSpec(2, 2, figure=fig)
+    ax1 = fig.add_subplot(gs[0, :])
+    ax2 = fig.add_subplot(gs[1, :])
+
+    x = column_cat1
+    y = column_num
+    hue = column_cat2
+    
+    
+    
+    df_cnts_def = pd.DataFrame()
+    # Building the table
+    table = ax1.table(cellText=df_describe_def.values,
+          rowLabels=df_describe_def.index,
+          colLabels=df_describe_def.columns, loc='center')
+    table.auto_set_font_size(False)
+    table.set_fontsize(14)
+    table.scale(1.1, 1.1)
+    ax1.axis('off')
+    #spos = Slider(ax1, 'Pos', 0.1, 90.0)
+
+    #def update(val):
+    #    pos = spos.val
+    #    ax1.axis([pos,pos+10,-1,1])
+    #    fig.canvas.draw_idle()
+
+    #spos.on_changed(update)
+    
+    # Building box plot
+    bxplt = sns.boxplot(x=x, y=y, hue=hue ,data=dataframe,
+               palette=palette, order=order, ax=ax2)
+    ax2.set_title("BoxPlot by category")
+    # Making the mean and median lines
+    mn = dataframe[column_num].mean()
+    med = dataframe[column_num].median()
+    ax2.axhline(mn, color="red", label="Ungrouped Mean")
+    ax2.axhline(med, color="black", label="Ungrouped Median")
+    ax2.legend()
+    
+    plt.show()
 
 
+def two_numerical_vs_categorical(dataframe, column_num1, column_num2, column_cat, palette, ax, order):
+    # Numerical vs Numerical target --> Describe for both variable and target; Correlation values; Scatterplot
+    d1 = dataframe[[column_num1, column_num2]].describe()
+    d2 = dataframe.groupby(column_cat)[[column_num1, column_num2]].describe().transpose()
+    names = d2.columns.names
+    cats = list(d2.columns)
+    print(d2)
+    print(d2.columns)
+    print(names, cats)
+    #combined = [list(zip(names,a)) for a in cats]
+    #combined2 = ["{}_{}:{}_{}:{}".format(column_num,x[0][0], x[0][1], x[1][0], x[1][1]) for x in combined]
+    #d4.columns = combined2
+
+    return;
+    corr = dataframe[[column_num1, column_num2]].corr()
+    
+    fig = plt.figure(constrained_layout=True, figsize=(15,10))
+    fig.suptitle("Variables summary: {} vs {}".format(column_num1, column_num2), fontsize=20)
+    
+    gs = GridSpec(2, 2, figure=fig)
+    ax1 = fig.add_subplot(gs[0, 0])
+    ax2 = fig.add_subplot(gs[0, 1])
+    ax3 = fig.add_subplot(gs[1, :])
+    
+    
+    # Building the table
+    table = ax1.table(cellText=d1.values,
+          rowLabels=d1.index,
+          colLabels=d1.columns, loc='center')
+    table.auto_set_font_size(False)
+    table.set_fontsize(14)
+    table.scale(1.1, 1.1)
+    ax1.set_title("Summary Table")
+    ax1.axis('off')
+    
+    table2 = ax2.table(cellText=corr.values,
+          rowLabels=corr.index,
+          colLabels=corr.columns, loc='center')
+    table2.auto_set_font_size(False)
+    table2.set_fontsize(14)
+    table2.scale(1.1, 1.1)
+    ax2.set_title("Pearson correlation")
+    ax2.axis('off')
+    
+    
+    sns.scatterplot(data=dataframe, x=column_num1, y=column_num2,  palette=palette, ax=ax3)
+    
+    
+    plt.show()
+    
+    
     
     
 
