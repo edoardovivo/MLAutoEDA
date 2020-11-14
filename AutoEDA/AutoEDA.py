@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 # coding: utf-8
 
 # **BIVARIATE**
@@ -193,6 +194,51 @@ def categorical_vs_numerical(dataframe, column_num, column_cat, palette, ax, ord
     plt.tight_layout()
     
     plt.show()
+    
+
+    
+def numerical_vs_numerical(dataframe, column_num1, column_num2, palette, ax, order):
+    # Numerical vs Numerical target --> Describe for both variable and target; Correlation values; Scatterplot
+    d1 = dataframe[[column_num1, column_num2]].describe()
+    corr = dataframe[[column_num1, column_num2]].corr()
+    
+    fig = plt.figure(constrained_layout=True, figsize=(15,10))
+    fig.suptitle("Variables summary: {} vs {}".format(column_num1, column_num2), fontsize=20)
+    
+    gs = GridSpec(2, 2, figure=fig)
+    ax1 = fig.add_subplot(gs[0, 0])
+    ax2 = fig.add_subplot(gs[0, 1])
+    ax3 = fig.add_subplot(gs[1, :])
+    
+    
+    # Building the table
+    table = ax1.table(cellText=d1.values,
+          rowLabels=d1.index,
+          colLabels=d1.columns, loc='center')
+    table.auto_set_font_size(False)
+    table.set_fontsize(14)
+    table.scale(1.1, 1.1)
+    ax1.set_title("Summary Table")
+    ax1.axis('off')
+    
+    table2 = ax2.table(cellText=corr.values,
+          rowLabels=corr.index,
+          colLabels=corr.columns, loc='center')
+    table2.auto_set_font_size(False)
+    table2.set_fontsize(14)
+    table2.scale(1.1, 1.1)
+    ax2.set_title("Pearson correlation")
+    ax2.axis('off')
+    
+    
+    sns.scatterplot(data=dataframe, x=column_num1, y=column_num2,  palette=palette, ax=ax3)
+    
+    
+    plt.show()
+    
+    
+    
+
 
 
 
