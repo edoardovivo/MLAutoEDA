@@ -78,7 +78,7 @@ def categorical_univariate(dataframe, column, palette, ax, order):
 
 
 
-def categorical_vs_categorical(dataframe, column, target, palette, ax, order):
+def categorical_vs_categorical(dataframe, column_cat1, column_cat2, palette, ax, order):
     #plt.table(cellText=dcsummary.values,colWidths = [0.25]*len(dc.columns),
     #      rowLabels=dcsummary.index,
     #      colLabels=dcsummary.columns,
@@ -86,22 +86,22 @@ def categorical_vs_categorical(dataframe, column, target, palette, ax, order):
     #      loc='top')
     
     # Counts and percentages by column and target
-    c = dataframe.groupby([column, target]).size()
+    c = dataframe.groupby([column_cat1, column_cat2]).size()
     p = c.groupby(level=0).apply(lambda x: x / float(x.sum()))
     df_cnts = pd.concat([c,p], axis=1, keys=['counts', '%'])
     
     # Counts and percentages by target
-    c1 = dataframe[target].value_counts(dropna=False, normalize=False)
-    p1 = dataframe[target].value_counts(dropna=False, normalize=True)
-    df_cnts1 = pd.concat([c1,p1], axis=1, keys=['counts', '% ' + target])
+    c1 = dataframe[column_cat2].value_counts(dropna=False, normalize=False)
+    p1 = dataframe[column_cat2].value_counts(dropna=False, normalize=True)
+    df_cnts1 = pd.concat([c1,p1], axis=1, keys=['counts', '% ' + column_cat2])
     
     # Joint counts and percentages
-    df_cnts_def = df_cnts.join(df_cnts1.rename_axis(target), lsuffix='', rsuffix='_' + target)
-    df_cnts_def.update(df_cnts_def[['%', '% ' + target]].applymap('{:,.2f}'.format))
+    df_cnts_def = df_cnts.join(df_cnts1.rename_axis(column_cat2), lsuffix='', rsuffix='_' + column_cat2)
+    df_cnts_def.update(df_cnts_def[['%', '% ' + column_cat2]].applymap('{:,.2f}'.format))
 
 
-    y = column
-    hue = target
+    y = column_cat1
+    hue = column_cat2
     
     fig = plt.figure(constrained_layout=True, figsize=(15,10))
 
@@ -118,7 +118,7 @@ def categorical_vs_categorical(dataframe, column, target, palette, ax, order):
     table.set_fontsize(14)
     table.scale(1.1, 1.1)
     ax1.axis('off')
-    fig.suptitle("Variables summary: {} vs {}".format(column, target), fontsize=20)
+    fig.suptitle("Variables summary: {} vs {}".format(column_cat1, column_cat2), fontsize=20)
     
     #print(df_cnts.reset_index())
     # Building percentages plot
@@ -128,7 +128,7 @@ def categorical_vs_categorical(dataframe, column, target, palette, ax, order):
     # Making the vertical lines
     leg = barplt.get_legend()
     colors = [x.get_facecolor() for x in leg.legendHandles]
-    for color, x in zip(colors, df_cnts1['% ' + target].values):
+    for color, x in zip(colors, df_cnts1['% ' + column_cat2].values):
         ax2.axvline(x, color=color, linestyle="--", linewidth=2.)
     
     
@@ -237,33 +237,29 @@ def numerical_vs_numerical(dataframe, column_num1, column_num2, palette, ax, ord
     plt.show()
     
     
+
+def two_categorical_vs_categorical(dataframe, column_cat1, column_cat2, column_cat3, palette, ax, order):
     
-
-
-
-
-def two_categorical_vs_categorical(dataframe, column_x, column_y, target, palette, ax, order):
-    
-    target_values = dataframe[target].unique().tolist()
+    target_values = dataframe[column_cat3].unique().tolist()
     n_target_values = len(target_values)
     
     # Counts and percentages by column and target
-    c = dataframe.groupby([column_x, column_y, target]).size()
+    c = dataframe.groupby([column_cat1, column_cat2, column_cat3]).size()
     p = c.groupby(level=[0,1]).apply(lambda x: x / float(x.sum()))
     df_cnts = pd.concat([c,p], axis=1, keys=['counts', '%'])
     
     # Counts and percentages by target
-    c1 = dataframe[target].value_counts(dropna=False, normalize=False)
-    p1 = dataframe[target].value_counts(dropna=False, normalize=True)
-    df_cnts1 = pd.concat([c1,p1], axis=1, keys=['counts', '% ' + target])
+    c1 = dataframe[column_cat3].value_counts(dropna=False, normalize=False)
+    p1 = dataframe[column_cat3].value_counts(dropna=False, normalize=True)
+    df_cnts1 = pd.concat([c1,p1], axis=1, keys=['counts', '% ' + column_cat3])
     
     # Joint counts and percentages
-    df_cnts_def = df_cnts.join(df_cnts1.rename_axis(target), lsuffix='', rsuffix='_' + target)
-    df_cnts_def.update(df_cnts_def[['%', '% ' + target]].applymap('{:,.2f}'.format))
+    df_cnts_def = df_cnts.join(df_cnts1.rename_axis(column_cat3), lsuffix='', rsuffix='_' + column_cat3)
+    df_cnts_def.update(df_cnts_def[['%', '% ' + column_cat3]].applymap('{:,.2f}'.format))
 
-    x = column_x
-    y = column_y
-    hue = target
+    x = column_cat1
+    y = column_cat2
+    hue = column_cat3
     
     fig = plt.figure(constrained_layout=True, figsize=(15,10))
 
@@ -283,7 +279,7 @@ def two_categorical_vs_categorical(dataframe, column_x, column_y, target, palett
     table.set_fontsize(14)
     table.scale(1.1, 1.1)
     ax1.axis('off')
-    fig.suptitle("Variables summary: {} - {} vs {} ".format(column_x, column_y, target), fontsize=20)
+    fig.suptitle("Variables summary: {} - {} vs {} ".format(column_cat1, column_cat2, column_cat3), fontsize=20)
     
     #Building heatmaps
     for i in range(0, n_target_values):
@@ -291,18 +287,18 @@ def two_categorical_vs_categorical(dataframe, column_x, column_y, target, palett
         ax2 = axs[i][0]
         ax3 = axs[i][1]
         df_heatmap_aux = df_cnts_def.reset_index()
-        df_heatmap = df_heatmap_aux[df_heatmap_aux[target] == target_value].pivot(column_y, column_x, "%").astype("float")
+        df_heatmap = df_heatmap_aux[df_heatmap_aux[column_cat3] == target_value].pivot(column_cat1, column_cat2, "%").astype("float")
 
-        val = df_heatmap_aux[df_heatmap_aux[target] == target_value]["% "+ target].astype("float").unique().tolist()[0]
+        val = df_heatmap_aux[df_heatmap_aux[column_cat3] == target_value]["% "+ column_cat3].astype("float").unique().tolist()[0]
         df_heatmap2 = df_heatmap -val
 
         sns.heatmap(df_heatmap, annot=True, ax=ax2)
-        ax2.set_title("Percentage of {} = {}".format(target, target_value))
+        ax2.set_title("Percentage of {} = {}".format(column_cat3, target_value))
         sns.heatmap(df_heatmap2, annot=True, ax=ax3)
-        ax3.set_title("Percentage increase of {} = {} wrt baseline".format(target, target_value))
+        ax3.set_title("Percentage increase of {} = {} wrt baseline".format(column_cat3, target_value))
     
     
-    return df_cnts_def
+    plt.show()
 
 
 
