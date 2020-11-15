@@ -374,51 +374,41 @@ def two_categorical_vs_numerical(dataframe, column_cat1, column_cat2, column_num
 
 
 def two_numerical_vs_categorical(dataframe, column_num1, column_num2, column_cat, palette, ax, order):
-    # Numerical vs Numerical target --> Describe for both variable and target; Correlation values; Scatterplot
+    '''
+    2 Numerical vs Categorical target --> Scatterplot with hue=target
+    '''
+    
     d1 = dataframe[[column_num1, column_num2]].describe()
-    d2 = dataframe.groupby(column_cat)[[column_num1, column_num2]].describe().transpose()
-    names = d2.columns.names
-    cats = list(d2.columns)
-    print(d2)
-    print(d2.columns)
-    print(names, cats)
-    #combined = [list(zip(names,a)) for a in cats]
-    #combined2 = ["{}_{}:{}_{}:{}".format(column_num,x[0][0], x[0][1], x[1][0], x[1][1]) for x in combined]
-    #d4.columns = combined2
+    d2 = dataframe.groupby(column_cat)[[column_num1, column_num2]].describe().transpose().unstack(level=0)
+    name = d2.columns.names[0]
+    new_cols = d2.columns.map(lambda x: "{}_{}:{}".format(x[1], name, x[0]) )
+    d2.columns = new_cols
+    df_describe_def = pd.concat([d1, d2], axis=1).applymap('{:,.2f}'.format)
+    print(df_describe_def)
 
-    return;
-    corr = dataframe[[column_num1, column_num2]].corr()
     
     fig = plt.figure(constrained_layout=True, figsize=(15,10))
-    fig.suptitle("Variables summary: {} vs {}".format(column_num1, column_num2), fontsize=20)
+    fig.suptitle("Variables summary: {} and {} vs {}".format(column_num1, column_num2, column_cat), fontsize=20)
     
     gs = GridSpec(2, 2, figure=fig)
-    ax1 = fig.add_subplot(gs[0, 0])
-    ax2 = fig.add_subplot(gs[0, 1])
-    ax3 = fig.add_subplot(gs[1, :])
+    ax1 = fig.add_subplot(gs[0, :])
+    ax2 = fig.add_subplot(gs[1, :])
+    #ax3 = fig.add_subplot(gs[1, 1])
     
     
     # Building the table
-    table = ax1.table(cellText=d1.values,
-          rowLabels=d1.index,
-          colLabels=d1.columns, loc='center')
+    table = ax1.table(cellText=df_describe_def.values,
+          rowLabels=df_describe_def.index,
+          colLabels=df_describe_def.columns, loc='center')
     table.auto_set_font_size(False)
     table.set_fontsize(14)
     table.scale(1.1, 1.1)
     ax1.set_title("Summary Table")
     ax1.axis('off')
     
-    table2 = ax2.table(cellText=corr.values,
-          rowLabels=corr.index,
-          colLabels=corr.columns, loc='center')
-    table2.auto_set_font_size(False)
-    table2.set_fontsize(14)
-    table2.scale(1.1, 1.1)
-    ax2.set_title("Pearson correlation")
-    ax2.axis('off')
+  
     
-    
-    sns.scatterplot(data=dataframe, x=column_num1, y=column_num2,  palette=palette, ax=ax3)
+    sns.scatterplot(data=dataframe, x=column_num1, y=column_num2,  hue=column_cat, palette=palette, ax=ax2)
     
     
     plt.show()
