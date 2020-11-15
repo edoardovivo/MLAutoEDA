@@ -384,8 +384,6 @@ def two_numerical_vs_categorical(dataframe, column_num1, column_num2, column_cat
     new_cols = d2.columns.map(lambda x: "{}_{}:{}".format(x[1], name, x[0]) )
     d2.columns = new_cols
     df_describe_def = pd.concat([d1, d2], axis=1).applymap('{:,.2f}'.format)
-    print(df_describe_def)
-
     
     fig = plt.figure(constrained_layout=True, figsize=(15,10))
     fig.suptitle("Variables summary: {} and {} vs {}".format(column_num1, column_num2, column_cat), fontsize=20)
@@ -410,6 +408,51 @@ def two_numerical_vs_categorical(dataframe, column_num1, column_num2, column_cat
     
     sns.scatterplot(data=dataframe, x=column_num1, y=column_num2,  hue=column_cat, palette=palette, ax=ax2)
     
+    
+    plt.show()
+    
+
+def two_numerical_vs_numerical(dataframe, column_num1, column_num2, column_num3, palette, ax, order):
+    '''
+    2 Numerical vs numerical target --> heatmap
+    '''
+    d1 = dataframe[[column_num1, column_num2, column_num3]].describe().applymap('{:,.2f}'.format)
+    corr = dataframe[[column_num1, column_num2, column_num3]].corr().applymap('{:,.2f}'.format)
+    
+    fig = plt.figure(constrained_layout=True, figsize=(15,10))
+    fig.suptitle("Variables summary: {} and {} vs {}".format(column_num1, column_num2, column_num3), fontsize=20)
+    
+    gs = GridSpec(2, 2, figure=fig)
+    ax1 = fig.add_subplot(gs[0, 0])
+    ax2 = fig.add_subplot(gs[0, 1])
+    ax3 = fig.add_subplot(gs[1, :])
+    
+    
+    # Building the table
+    table = ax1.table(cellText=d1.values,
+          rowLabels=d1.index,
+          colLabels=d1.columns, loc='center')
+    table.auto_set_font_size(False)
+    table.set_fontsize(14)
+    table.scale(1.1, 1.1)
+    ax1.set_title("Summary Table")
+    ax1.axis('off')
+    
+    table2 = ax2.table(cellText=corr.values,
+          rowLabels=corr.index,
+          colLabels=corr.columns, loc='center')
+    table2.auto_set_font_size(False)
+    table2.set_fontsize(14)
+    table2.scale(1.1, 1.1)
+    ax2.set_title("Pearson correlation")
+    ax2.axis('off')
+    
+    #df_heatmap = dataframe[[column_num1, column_num2, column_num3]].pivot(column_num1, column_num2, column_num3)
+    
+    #sns.scatterplot(data=df_heatmap, x=column_num1, y=column_num2,  palette=palette, ax=ax3)
+    
+    hb = ax3.hexbin(dataframe[column_num1], dataframe[column_num2], C=dataframe[column_num3], gridsize=20, cmap=palette)
+    cb = fig.colorbar(hb, ax=ax3)
     
     plt.show()
     
