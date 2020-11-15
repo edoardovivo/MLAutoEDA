@@ -452,7 +452,11 @@ def two_numerical_vs_numerical(dataframe, column_num1, column_num2, column_num3,
     #sns.scatterplot(data=df_heatmap, x=column_num1, y=column_num2,  palette=palette, ax=ax3)
     
     hb = ax3.hexbin(dataframe[column_num1], dataframe[column_num2], C=dataframe[column_num3], gridsize=20, cmap=palette)
+    ax3.set_xlabel(column_num1)
+    ax3.set_ylabel(column_num2)
+    ax3.set_title("HexBin Plot")
     cb = fig.colorbar(hb, ax=ax3)
+    cb.set_label(column_num3)
     
     plt.show()
     
