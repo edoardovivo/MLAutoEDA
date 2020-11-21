@@ -47,11 +47,32 @@ from matplotlib.gridspec import GridSpec
 import scipy.stats as stats
 import statsmodels.api as sm
 from matplotlib.widgets import Slider
+from dython import nominal
 
 
-def prova_prova():
-    print("prova")
+def associations(dataframe, cmap='coolwarm'):
+    '''
+    Uses dython to compute associations
+    - Numerical vs numerical: pearson's correlation coefficient
+    - Categorical vs Categorical: Thiels U coefficient
+    - Categorical vs Numerical: Correlation ratio (eta)
+    '''
+    df_corr = nominal.compute_associations(dataframe, theil_u=True, clustering=True,
+                    nan_strategy='drop_samples',
+                    mark_columns=True)
+    df_corr_ordered = df_corr.stack().reset_index()
+    df_corr_ordered.columns = ["Var_y", "Var_x", "Corr"]
+    df_corr_ordered = df_corr_ordered.sort_values("Corr", ascending=False)
 
+    fig, ax = plt.subplots(figsize=(10, 10))
+    g = sns.heatmap(df_corr, annot = True, fmt='.2g',
+                   vmin=-1, vmax=1, center= 0, cmap=cmap, 
+                   linewidths=2, linecolor='black', ax=ax)
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=45)
+    
+    plt.show()
+    
+    return (df_corr, df_corr_ordered, (fig, ax)) 
 
 
 def categorical_univariate(dataframe, column, palette, ax, order):
