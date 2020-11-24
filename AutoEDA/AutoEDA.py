@@ -107,6 +107,49 @@ def compute_summary_categorical_vs_categorical(dataframe, column_cat1, column_ca
         return d1, d2
     else:
         return 'Error'
+    
+
+def compute_summary_numerical_vs_numerical(dataframe, column_num1, column_num2):
+    return dataframe[column_num1, column_num2].describe()
+ 
+
+def compute_summary_2categorical_vs_categorical(dataframe, column_cat1, column_cat2, column_cat3, normalize='both'):
+    
+    if (normalize == 'yes'):
+        d2 = pd.crosstab(index=[dataframe[column_cat1], dataframe[column_cat2]], columns=dataframe[column_cat3], margins=True, normalize='index')
+        return d2
+    elif (normalize == 'no'):
+        d1 = pd.crosstab(index=[dataframe[column_cat1], dataframe[column_cat2]], columns=dataframe[column_cat3], margins=True)
+        return d1
+    elif (normalize == 'both'):
+        d1 = pd.crosstab(index=[dataframe[column_cat1], dataframe[column_cat2]], columns=dataframe[column_cat3], margins=True)
+        d2 = pd.crosstab(index=[dataframe[column_cat1], dataframe[column_cat2]], columns=dataframe[column_cat3], margins=True, normalize='index')
+        return d1, d2
+    else:
+        return 'Error'
+
+    
+def compute_summary_2categorical_vs_numerical(dataframe, column_cat1, column_cat2, column_num):    
+    
+    d1 = dataframe[column_num].describe().to_frame(column_num)
+    d2 = dataframe.groupby([column_cat1, column_cat2])[column_num].describe()
+    d2.index = ["{}_{}:{}_{}:{}".format(column_num, column_cat1, x[0], column_cat2, x[1]) for x in d2.index.to_flat_index()]
+    return pd.concat([d1, d2.transpose()], axis=1)
+
+
+def compute_summary_2numerical_vs_categorical(dataframe, column_num1, column_num2, column_cat):
+    d1 = dataframe[[column_num1, column_num2]].describe()
+    d2 = dataframe.groupby([column_cat1])[column_num1].describe().transpose()
+    d2.columns = ["{}_{}:{}".format(column_num1, column_cat1, x) for x in d2.columns ]
+    d3 = dataframe.groupby([column_cat1])[column_num2].describe().transpose()
+    d3.columns = ["{}_{}:{}".format(column_num2, column_cat1, x) for x in d3.columns ]
+    #d2.columns = d2.columns.droplevel(0)
+    return pd.concat([d1, d2, d3], axis=1)
+
+
+def compute_summary_2numerical_vs_numerical(dataframe, column_num1, column_num2, column_num3):
+    return dataframe[column_num1, column_num2, column_num3].describe()
+
 
 
 def categorical_univariate(dataframe, column, palette, ax, order):
