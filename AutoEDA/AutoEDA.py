@@ -75,28 +75,79 @@ def associations(dataframe, cmap='coolwarm'):
     return (df_corr, df_corr_ordered, (fig, ax)) 
 
 
-def categorical_univariate(dataframe, column, palette, ax, order):
-    #plt.table(cellText=dcsummary.values,colWidths = [0.25]*len(dc.columns),
-    #      rowLabels=dcsummary.index,
-    #      colLabels=dcsummary.columns,
-    #      cellLoc = 'center', rowLoc = 'center',
-    #      loc='top')
-    
-    # Counts and percentages
+def compute_summary_categorical(dataframe, column):
+    d = {}
     c = dataframe[column].value_counts(dropna=False)
     p = dataframe[column].value_counts(dropna=False, normalize=True)
-    df_cnts = pd.concat([c,p], axis=1, keys=['counts', '%'])
+    d[column] = c
+    d[column + "_pct"] = p
+    return pd.DataFrame(d)
+
+
+def compute_summary_numerical_vs_categorical(dataframe, column_num, column_cat):
+    d1 = dataframe[column_num].describe()
+    d2 = dataframe.groupby(column_cat)[column_num].describe().transpose()
+    d2.columns = ["{}_{}:{}".format(column_num, column_cat,c) for c in d2.columns]
+    df_summary = pd.concat([d1, d2], axis=1)
     
-    fig, axs = plt.subplots(1, 2, figsize=(15,8))
+    return df_summary
+
+
+def compute_summary_categorical_vs_categorical(dataframe, column_cat1, column_cat2, normalize='both'):
+    
+    if (normalize == 'yes'):
+        d2 = pd.crosstab(index=dataframe[column_cat1], columns=dataframe[column_cat2], margins=True, normalize='index')
+        return d2
+    elif (normalize == 'no'):
+        d1 = pd.crosstab(index=dataframe[column_cat1], columns=dataframe[column_cat2], margins=True)
+        return d1
+    elif (normalize == 'both'):
+        d1 = pd.crosstab(index=dataframe[column_cat1], columns=dataframe[column_cat2], margins=True)
+        d2 = pd.crosstab(index=dataframe[column_cat1], columns=dataframe[column_cat2], margins=True, normalize='index')
+        return d1, d2
+    else:
+        return 'Error'
+
+
+def categorical_univariate(dataframe, column, palette, ax, order):
+    
+    df_summary = compute_summary_categorical(dataframe, column)
+    
+    fig, axs = plt.subplots(figsize=(15,8))
     
     y = column
-    axs[0].table(cellText=df_cnts.values,
-          rowLabels=df_cnts.index,
-          colLabels=df_cnts.columns, loc='center')
-    axs[0].axis('off')
+    #axs[0].table(cellText=df_cnts.values,
+    #      rowLabels=df_cnts.index,
+    #      colLabels=df_cnts.columns, loc='center')
+    #axs[0].axis('off')
     sns.countplot(y=y, data=dataframe,
-                  palette=palette, order=order, ax=axs[1])
+                  palette=palette, order=order, ax=axs)
     plt.show()
+    
+    return (fig, axs), df_summary
+
+
+def numerical_univariate(dataframe, column, palette, ax=None):
+    
+    df_summary = dataframe[column].describe()
+    
+    fig, axs = plt.subplots(1, 2,figsize=(10,8))
+    
+    y = column
+    #axs[0].table(cellText=df_cnts.values,
+    #      rowLabels=df_cnts.index,
+    #      colLabels=df_cnts.columns, loc='center')
+    #axs[0].axis('off')
+    #sns.countplot(y=y, data=dataframe,
+    #              palette=palette, order=order, ax=axs)
+    
+    sns.histplot(data=dataframe, x=column, palette=palette, ax=axs[0],  kde=True)
+    sns.boxplot(data=dataframe, y=column, palette=palette, ax=axs[1])
+    
+    plt.show()
+    
+    return (fig, axs), df_summary
+
 
 
 
