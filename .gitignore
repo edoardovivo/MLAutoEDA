@@ -3,6 +3,7 @@ Data/
 .idea/
 *.zip
 plotly_test.ipynb
+*.pkl
 
 
 
