@@ -24,3 +24,4 @@ This library produces different types of charts depending on the combination of 
 
 ##### Numerical
 
+[Univariate numerical](https://github.com/edoardovivo/AutoEDA/blob/develop/img/univariate_numerical.png)
