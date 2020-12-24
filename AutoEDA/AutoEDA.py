@@ -152,7 +152,7 @@ def compute_summary_2numerical_vs_numerical(dataframe, column_num1, column_num2,
 
 
 
-def categorical_univariate(dataframe, column, palette, ax, order):
+def categorical_univariate(dataframe, column, palette, show_plot=True):
     
     df_summary = compute_summary_categorical(dataframe, column)
     
@@ -163,14 +163,16 @@ def categorical_univariate(dataframe, column, palette, ax, order):
     #      rowLabels=df_cnts.index,
     #      colLabels=df_cnts.columns, loc='center')
     #axs[0].axis('off')
-    sns.countplot(y=y, data=dataframe,
-                  palette=palette, order=order, ax=axs)
-    plt.show()
+    cntplot = sns.countplot(y=y, data=dataframe,
+                  palette=palette);
+    
+    if (show_plot):
+        plt.show();
     
     return (fig, axs), df_summary
 
 
-def numerical_univariate(dataframe, column, palette, ax=None):
+def numerical_univariate(dataframe, column, palette, show_plot=True):
     
     df_summary = dataframe[column].describe()
     
@@ -184,17 +186,18 @@ def numerical_univariate(dataframe, column, palette, ax=None):
     #sns.countplot(y=y, data=dataframe,
     #              palette=palette, order=order, ax=axs)
     
-    sns.histplot(data=dataframe, x=column, palette=palette, ax=axs[0],  kde=True)
-    sns.boxplot(data=dataframe, y=column, palette=palette, ax=axs[1])
+    hst = sns.histplot(data=dataframe, x=column, palette=palette, ax=axs[0],  kde=True);
+    boxplot = sns.boxplot(data=dataframe, y=column, palette=palette, ax=axs[1]);
     
-    plt.show()
+    if (show_plot):
+        plt.show();
     
     return (fig, axs), df_summary
 
 
 
 
-def categorical_vs_categorical(dataframe, column_cat1, column_cat2, palette, ax, order):
+def categorical_vs_categorical(dataframe, column_cat1, column_cat2, palette):
     #plt.table(cellText=dcsummary.values,colWidths = [0.25]*len(dc.columns),
     #      rowLabels=dcsummary.index,
     #      colLabels=dcsummary.columns,
@@ -239,7 +242,7 @@ def categorical_vs_categorical(dataframe, column_cat1, column_cat2, palette, ax,
     #print(df_cnts.reset_index())
     # Building percentages plot
     barplt = sns.barplot(x='%', y=y, hue=hue ,data=df_summary_new,
-               palette=palette, order=order, ax=ax[0])
+               palette=palette, ax=ax[0])
     ax[0].set_title("Percentages")
     # Making the vertical lines
     leg = barplt.get_legend()
@@ -250,7 +253,7 @@ def categorical_vs_categorical(dataframe, column_cat1, column_cat2, palette, ax,
     
     # Building values plot
     sns.countplot(y=y, hue=hue, data=dataframe,
-                  palette=palette, order=order, ax=ax[1])
+                  palette=palette, ax=ax[1])
     ax[1].set_title("Values")
     plt.tight_layout()
     
@@ -259,7 +262,7 @@ def categorical_vs_categorical(dataframe, column_cat1, column_cat2, palette, ax,
     return (fig, ax), df_summary
 
 
-def categorical_vs_numerical(dataframe, column_num, column_cat, palette, ax, order):
+def categorical_vs_numerical(dataframe, column_num, column_cat, palette):
     #plt.table(cellText=dcsummary.values,colWidths = [0.25]*len(dc.columns),
     #      rowLabels=dcsummary.index,
     #      colLabels=dcsummary.columns,
@@ -280,7 +283,7 @@ def categorical_vs_numerical(dataframe, column_num, column_cat, palette, ax, ord
     #print(df_cnts.reset_index())
     # Building box plot
     bxplt = sns.boxplot(x=column_cat, y=column_num, hue=None ,data=dataframe,
-               palette=palette, order=order, ax=ax[0])
+               palette=palette,ax=ax[0])
     ax[0].set_title("BoxPlot by category")
     # Making the mean and median lines
     mn = dataframe[column_num].mean()
@@ -305,7 +308,7 @@ def categorical_vs_numerical(dataframe, column_num, column_cat, palette, ax, ord
     
 
     
-def numerical_vs_numerical(dataframe, column_num1, column_num2, palette, ax, order):
+def numerical_vs_numerical(dataframe, column_num1, column_num2, palette):
     # Numerical vs Numerical target --> Describe for both variable and target; Scatterplot
     df_summary = dataframe[[column_num1, column_num2]].describe()
     #corr = dataframe[[column_num1, column_num2]].corr()
@@ -321,7 +324,7 @@ def numerical_vs_numerical(dataframe, column_num1, column_num2, palette, ax, ord
     
     
 
-def two_categorical_vs_categorical(dataframe, column_cat1, column_cat2, column_cat3, palette, ax, order):
+def two_categorical_vs_categorical(dataframe, column_cat1, column_cat2, column_cat3, palette):
     '''
     2 Categorical vs Categorical target --> Count + pct for each category and target category; Count + pct for each target category; For each value of target (column_cat3), two heatmaps: one with percentages of the corresponding value for each pair of category values, and one with the difference between the first one, and the pct of the target value without grouping (baseline).
     '''
@@ -362,7 +365,7 @@ def two_categorical_vs_categorical(dataframe, column_cat1, column_cat2, column_c
 
 
 
-def two_categorical_vs_numerical(dataframe, column_cat1, column_cat2, column_num, palette, ax, order):
+def two_categorical_vs_numerical(dataframe, column_cat1, column_cat2, column_num, palette):
     '''
     2 categorical vs numerical target --> Grouped boxplot with x=categorical, y=target, hue=categorical
     '''
@@ -378,7 +381,7 @@ def two_categorical_vs_numerical(dataframe, column_cat1, column_cat2, column_num
     
     # Building box plot
     bxplt = sns.boxplot(x=x, y=y, hue=hue ,data=dataframe,
-               palette=palette, order=order, ax=ax)
+               palette=palette, ax=ax)
     ax.set_title("BoxPlot by category")
     # Making the mean and median lines
     mn = dataframe[column_num].mean()
@@ -392,7 +395,7 @@ def two_categorical_vs_numerical(dataframe, column_cat1, column_cat2, column_num
     return (fig, ax), df_summary
 
 
-def two_numerical_vs_categorical(dataframe, column_num1, column_num2, column_cat, palette, ax, order):
+def two_numerical_vs_categorical(dataframe, column_num1, column_num2, column_cat, palette):
     '''
     2 Numerical vs Categorical target --> Scatterplot with hue=target
     '''
@@ -409,7 +412,7 @@ def two_numerical_vs_categorical(dataframe, column_num1, column_num2, column_cat
     return (fig, ax), df_summary
     
 
-def two_numerical_vs_numerical(dataframe, column_num1, column_num2, column_num3, palette, ax, order):
+def two_numerical_vs_numerical(dataframe, column_num1, column_num2, column_num3, palette):
     '''
     2 Numerical vs numerical target --> hexbin
     '''
@@ -432,139 +435,102 @@ def two_numerical_vs_numerical(dataframe, column_num1, column_num2, column_num3,
     
     return (fig, ax), df_summary
     
-    
-    
-    
 
-#def categorical_summarized(dataframe, x=None, y=None, hue=None, palette='Set1', ax=None, order=None):
-def categorical_summarized(dataframe, variables=None, target=None, palette='Set1', ax=None, order=None):
-    '''
-    Helper function that gives a quick summary of a given column of categorical data
 
-    Arguments
-    =========
-    dataframe: pandas dataframe
-    x: str. horizontal axis to plot the labels of categorical data, y would be the count
-    y: str. vertical axis to plot the labels of categorical data, x would be the count
-    hue: str. if you want to compare it another variable (usually the target variable)
-    palette: array-like. Colour of the plot
-
-    Returns
-    =======
-    Quick Stats of the data and also the count plot
+def summaryEDA(dataframe, numerical_vars, categorical_vars, target, target_type='numerical', show_plot=False, palette=None):
     '''
-    
+    Computes univariate, bivariate and trivariate summaries and charts and stores them in a dictionary
     '''
-    Possible cases:
-    
-    - variables is None --> ERROR
-    - variables is string and target is None --> Univariate plot
-    - variables is list of one and target is None --> Univariate plot
-    - variables is list of two and target is None --> Bi-variate plot
-    - variables is list of three and target is None --> Tri-variate plot
-    - variable is a list of more than 3 and target is None --> ERROR
-    - variables is string and target is a string --> Bi-variate plot
-    - variables is list of one and target is a string --> Bi-variate plot
-    - variables is list of two and target is a string --> Tri-variate plot
-    - variables is list of three and target a string --> ERROR
-    - variable is a list of more than 3 and target is a string --> ERROR
-    '''
+    summary_dict = {}
     
     
-    if variables is None:
-        return;
-    elif (isinstance(variables, str)) and (target is None):
-        # Univariate plot
-        categorical_univariate(dataframe, column = variables, palette=palette, ax=ax, order=order)
-    elif (type(variables) is list) and (len(variables) == 1) and (target is None):
-        # Univariate plot
-        categorical_univariate(dataframe, column = variables[0], palette=palette, ax=ax, order=order)
-    elif (type(variables) is list) and (len(variables) == 2) and (target is None):
-        # Bi-variate plot
-        categorical_bivariate(dataframe, column=variables[0], target=variables[1], 
-                              palette=palette, ax=ax, order=order)
-    elif (type(variables) is list) and (len(variables) == 3) and (target is None):
-        # Tri-variate plot
-        categorical_trivariate(dataframe, column_x=variables[0], column_y=variables[1], 
-                               target=variables[2], 
-                              palette=palette, ax=ax, order=order)
-    elif (type(variables) is list) and (len(variables) > 3):
-        # ERROR
-        return;
-    elif (isinstance(variables, str)) and (isinstance(target, str)):
-        #Bi-variate plot
-        categorical_bivariate(dataframe, column=variables, target=target, palette=palette, ax=ax, order=order)
-    elif (type(variables) is list) and (len(variables) == 1) and (isinstance(target, str)):
-        #Bi-variate plot
-        categorical_bivariate(dataframe, column=variables[0], target=target, palette=palette, ax=ax, order=order)
-    elif (type(variables) is list) and (len(variables) == 2) and (isinstance(target, str)):
-        # Tri-variate plot
-        categorical_trivariate(dataframe, column_x=variables[0], column_y=variables[1], 
-                               target=target, 
-                              palette=palette, ax=ax, order=order)
-    elif (type(variables) is list) and (len(variables) >= 3) and (isinstance(target, str)):
-        # ERROR
-        return;
-    else:
-        # ERROR
-        return;
-
+    # Univariate plots and summaries
+    for num_var in numerical_vars:
+        (fig, axs), df_summary = numerical_univariate(dataframe, num_var, palette, show_plot)
+        summary_dict[num_var] = {}
+        summary_dict[num_var]['figure'] = fig
+        summary_dict[num_var]['axes'] = axs
+        summary_dict[num_var]['summary'] = df_summary
         
     
-    #if x == None:
-    #    column_interested = y
-    #else:
-    #    column_interested = x
-    #series = dataframe[column_interested]
-    #cnts = series.value_counts()
-    #
-    ##print(series.describe())
-    ##print('mode: ', series.mode())
-    ##if verbose:
-    ##    print('='*80)
-   ##     print(series.value_counts())
-#
-    #sns.countplot(x=x, y=y, hue=hue, data=dataframe,
-    #              palette=palette, order=order, ax=ax)
-    #plt.show()
-
-
-
-
-def quantitative_summarized(dataframe, x=None, y=None, hue=None, palette='Set1', ax=None, order=None, verbose=True, swarm=False):
-    '''
-    Helper function that gives a quick summary of quantattive data
-
-    Arguments
-    =========
-    dataframe: pandas dataframe
-    x: str. horizontal axis to plot the labels of categorical data (usually the target variable)
-    y: str. vertical axis to plot the quantitative data
-    hue: str. if you want to compare it another categorical variable (usually the target variable if x is another variable)
-    palette: array-like. Colour of the plot
-    swarm: if swarm is set to True, a swarm plot would be overlayed
-
-    Returns
-    =======
-    Quick Stats of the data and also the box plot of the distribution
-    '''
-    series = dataframe[y]
-    print(series.describe())
-    print('mode: ', series.mode())
-    if verbose:
-        print('='*80)
-        print(series.value_counts())
-
-    sns.boxplot(x=x, y=y, hue=hue, data=dataframe,
-                palette=palette, order=order, ax=ax)
-
-    if swarm:
-        sns.swarmplot(x=x, y=y, hue=hue, data=dataframe,
-                      palette=palette, order=order, ax=ax)
-
-    plt.show()
-
-
+    for cat_var in categorical_vars:
+        (fig, axs), df_summary = categorical_univariate(dataframe, cat_var, palette, show_plot)
+        summary_dict[num_var] = {}
+        summary_dict[num_var]['figure'] = fig
+        summary_dict[num_var]['axes'] = axs
+        summary_dict[num_var]['summary'] = df_summary
+        
+    # Numerical vs target
+    for num_var in numerical_vars:
+        if (target_type == 'numerical'):
+            (fig, axs), df_summary = numerical_vs_numerical(dataframe, num_var, target, palette)
+        elif (target_type == 'categorical'):
+            (fig, axs), df_summary = categorical_vs_numerical(dataframe, num_var, target, palette)
+        k = (num_var, target)
+        summary_dict[k] = {}
+        summary_dict[k]['figure'] = fig
+        summary_dict[k]['axes'] = axs
+        summary_dict[k]['summary'] = df_summary
+    
+    # Categorical vs target
+    for cat_var in categorical_vars:
+        if (target_type == 'numerical'):
+            (fig, axs), df_summary = categorical_vs_numerical(dataframe, target, cat_var, palette)
+        elif (target_type == 'categorical'):
+            (fig, axs), df_summary = categorical_vs_categorical(dataframe, cat_var, target, palette)
+        k = (cat_var, target)
+        summary_dict[k] = {}
+        summary_dict[k]['figure'] = fig
+        summary_dict[k]['axes'] = axs
+        summary_dict[k]['summary'] = df_summary
+    
+    # 2 Numerical vs target
+    for i, num_var_i in enumerate(numerical_vars):
+        for j, num_var_j in enumerate(numerical_vars):
+            if (i < j):
+                if (target_type == 'numerical'):
+                    (fig, axs), df_summary = two_numerical_vs_numerical(dataframe, num_var_i, num_var_j, target, palette)
+                elif (target_type == 'categorical'):
+                    (fig, axs), df_summary = two_numerical_vs_categorical(dataframe, num_var_i, num_var_j, target, palette)
+                k = (num_var_i, num_var_j, target)
+                summary_dict[k] = {}
+                summary_dict[k]['figure'] = fig
+                summary_dict[k]['axes'] = axs
+                summary_dict[k]['summary'] = df_summary
+    
+    
+    # 2 Categorical vs target
+    for i, cat_var_i in enumerate(categorical_vars):
+        for j, cat_var_j in enumerate(categorical_vars):
+            if (i < j):
+                if (target_type == 'numerical'):
+                    (fig, axs), df_summary = two_categorical_vs_numerical(dataframe, cat_var_i, cat_var_j, target, palette)
+                elif (target_type == 'categorical'):
+                    (fig, axs), df_summary = two_categorical_vs_categorical(dataframe, cat_var_i, cat_var_j, target, palette)
+                k = (cat_var_i, cat_var_j, target)
+                summary_dict[k] = {}
+                summary_dict[k]['figure'] = fig
+                summary_dict[k]['axes'] = axs
+                summary_dict[k]['summary'] = df_summary
+    
+    # 1 Numerical and 1 categorical vs target
+    for i, num_var_i in enumerate(numerical_vars):
+        for j, cat_var_j in enumerate(categorical_vars):
+            if (target_type == 'numerical'):
+                (fig, axs), df_summary = two_numerical_vs_categorical(dataframe, num_var_i, target, cat_var_j, palette)
+            elif (target_type == 'categorical'):
+                (fig, axs), df_summary = two_categorical_vs_numerical(dataframe, cat_var_j, target, num_var_i, palette)
+            k = (num_var_i, cat_var_j, target)
+            summary_dict[k] = {}
+            summary_dict[k]['figure'] = fig
+            summary_dict[k]['axes'] = axs
+            summary_dict[k]['summary'] = df_summary
+    
+    
+    
+    return summary_dict
+    
+   
 
 
 if __name__ == "__main__":
