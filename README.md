@@ -37,7 +37,9 @@ The univariate graph for categorical variables is a countplot:
 
 ##### Numerical vs numerical target
 
+In this case, a scatterplot is produced.
 
+![Numerical vs target(num)](https://github.com/edoardovivo/AutoEDA/blob/develop/img/numerical_vs_target(num).png)
 
 
 ##### Numerical vs categorical target
@@ -48,10 +50,14 @@ For a numerical variable vs. a categorical target, the library produces a groupe
 
 ##### Categorical vs numerical target
 
+This produces two plots: a boxplot for the distribution of the target for each value of the categorical variable, and a kde plot showing the distributions. The boxplot also features the overall mean and median of the target, for comparison
+
+![Categorical vs target(num)](https://github.com/edoardovivo/AutoEDA/blob/develop/img/categorical_vs_target(num).png)
 
 ##### Categorical vs categorical target
 
 This produces two plots: a bar plot, grouped by the target, with the percentages of records in each group, and a countplot grouped by the target variable. In the percentage plot, the overall proportions for each level of the target variable are marked with vertical dashed lines, for comparison. For instance, in the following graph it is very easy to see that the survival rate for first class passengers is much higher than the base rate, whereas it is quite lower for 3rd class.
+
 ![Categorical vs target(cat)](https://github.com/edoardovivo/AutoEDA/blob/develop/img/categorical_vs_target(cat).png)
 
 
@@ -60,29 +66,41 @@ This produces two plots: a bar plot, grouped by the target, with the percentages
 
 ##### Two numerical vs numerical target
 
+This produces a hexbin plot where the value of the target variable is represented as a color gradient.
+
+![Two_numerical vs target(num)](https://github.com/edoardovivo/AutoEDA/blob/develop/img/two_numerical_vs_target(num).png)
+
 ##### Two numerical vs categorical target
 
 This produces a scatterplot of the two numerical variables, with a hue for each level of the target.
-![Categorical vs target(cat)](https://github.com/edoardovivo/AutoEDA/blob/develop/img/two_numerical_vs_target(cat).png)
+![Two_numerical vs target(cat)](https://github.com/edoardovivo/AutoEDA/blob/develop/img/two_numerical_vs_target(cat).png)
 
 
 ##### Two categorical vs numerical target
+
+This produces a grouped boxplot for the distribution of the target variable.
+
+![Two_categorical vs target(num)](https://github.com/edoardovivo/AutoEDA/blob/develop/img/two_categorical_vs_target(num).png)
 
 ##### Two categorical vs categorical target
 
 This produces two graphs **for each value of the target variable**. On the left, a heatmap with the proportion of records with that target value for each combination of the two categorical variables. On the left, the same heatmap, with the values "shifted" with respect to the overall rate of the target variable. 
 For instance, in the first line of the following two graphs, one can see that the percentage of men travelling first class that would not survive is 63%, which represents a 1.5% increase with respect to the overall death rate. **Note of caution: since the percentages are calculated over the target, given one heatmap those do not sum to 1. For the percentages to sum to 1, one needs to look only at the left side graphs, and sum up the corresponding squares of both graphs. For instance, for men in first class the death rate is 0.63 and the survival rate is 0.37, which sums to 1**
 
-![Categorical vs target(cat)](https://github.com/edoardovivo/AutoEDA/blob/develop/img/two_categorical_vs_target(cat).png)
+![Two_categorical vs target(cat)](https://github.com/edoardovivo/AutoEDA/blob/develop/img/two_categorical_vs_target(cat).png)
 
 
 ##### One numerical and one categorical vs numerical target
+
+This produces a scatterplot of the numerical variables vs the target, where the hue correspond to the categorical one.
+
+![Categorical numerical_vs target(num)](https://github.com/edoardovivo/AutoEDA/blob/develop/img/categorical_numerical_vs_target(num).png)
 
 ##### One numerical and one categorical vs categorical target
 
 This produces a boxplot like the following one, with the overall mean and median of the numerical variable to provide reference.
 
-![Categorical vs target(cat)](https://github.com/edoardovivo/AutoEDA/blob/develop/img/categorical_numerical_vs_target(cat).png)
+![Categorical numerical_vs target(cat)](https://github.com/edoardovivo/AutoEDA/blob/develop/img/categorical_numerical_vs_target(cat).png)
 
 
 
