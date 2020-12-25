@@ -455,10 +455,10 @@ def summaryEDA(dataframe, numerical_vars, categorical_vars, target, target_type=
     
     for cat_var in categorical_vars:
         (fig, axs), df_summary = categorical_univariate(dataframe, cat_var, palette, show_plot)
-        summary_dict[num_var] = {}
-        summary_dict[num_var]['figure'] = fig
-        summary_dict[num_var]['axes'] = axs
-        summary_dict[num_var]['summary'] = df_summary
+        summary_dict[cat_var] = {}
+        summary_dict[cat_var]['figure'] = fig
+        summary_dict[cat_var]['axes'] = axs
+        summary_dict[cat_var]['summary'] = df_summary
         
     # Numerical vs target
     for num_var in numerical_vars:
