@@ -48,31 +48,159 @@ import scipy.stats as stats
 import statsmodels.api as sm
 from matplotlib.widgets import Slider
 from dython import nominal
+from scipy.stats import pearsonr
 
 
-def associations(dataframe, cmap='coolwarm'):
+
+
+def entropy(df, var_cat):
+    #Entropy H(var_cat)
+    
+    if ("Unknown" not in df[var_cat].cat.categories):
+        df.loc[:, var_cat] = df[var_cat].cat.add_categories("Unknown").fillna("Unknown")
+    #df.loc[df[var_cat].isnull(), var_cat] = "Unknown"
+    dist = df[var_cat].value_counts(normalize=True, dropna=False)
+    entropy = - np.sum( dist*np.log(dist)  )
+    return entropy
+
+
+def conditional_entropy(df, var_cat1, var_cat2):
+    # Conditional Entropy H(X | Y) = H(cat1 | cat2) = - sum ( p(x,y)*log( p(x,y)/p(y) )  )
+
+    
+    #df.loc[:, var_cat1] = df[var_cat1].cat.add_categories("Unknown").fillna("Unknown")
+    if ("Unknown" not in df[var_cat2].cat.categories):
+        df.loc[:, var_cat2] = df[var_cat2].cat.add_categories("Unknown").fillna("Unknown")
+    
+    # Computes p(x, y)
+    joint_dist = pd.crosstab(index=df[var_cat1], columns=df[var_cat2], normalize='all', dropna=False, ).unstack().reset_index().rename(columns={0: 'P(x,y)'})
+
+    # If the joint dist is zero for some values, I do not have to compute the log
+    #cond = joint_dist["P(x,y)"] == 0.
+    #joint_dist = joint_dist[~cond]
+    #Computes p(y)
+    var_cat2_dist = df[var_cat2].value_counts(normalize=True, dropna=False).rename_axis(var_cat2).reset_index(name='P(y)')
+    
+    # Joins dataframes
+    df_dist = pd.merge(joint_dist, var_cat2_dist, on=var_cat2)
+    
+
+    #Computes log(p(x,y) / p(y))
+    df_dist["LogProb"] = np.log(df_dist["P(x,y)"] / df_dist["P(y)"])
+    df_dist.loc[df_dist["LogProb"] == -np.inf, "LogProb"] = 0.
+
+    #Computes the conditional entropy
+    conditional_entropy = -np.sum(df_dist["P(x,y)"]*df_dist["LogProb"] )
+    return conditional_entropy
+
+
+def eta(df, var_cat, var_num):
+    cat = df[var_cat]
+    num = df[var_num]
+    n = cat.value_counts()
+    yx = df.groupby(var_cat)[var_num].mean()
+    y = df[var_num].mean()
+    num = np.sum(n*(yx - y)**2)
+    den = np.sum((df[var_num] - y)**2)
+    eta = num/den
+  
+    return np.sqrt(eta)
+
+
+
+def theil_U(df, var_cat1, var_cat2):
+    h1 = entropy(df, var_cat1)
+    h12 = conditional_entropy(df, var_cat1, var_cat2)
+    U = (h1 - h12)/h1
+    return U
+
+
+
+#df_corr = pd.DataFrame(index=categorical2, columns=categorical2)
+#for i in categorical2:
+#  for j in categorical2:
+#    print(i, j)
+#    if (i != j):
+#      df_corr.loc[i, j] = thiel_U(variables, i, j)
+#    else:
+#      df_corr.loc[i, j] = 1.
+#df_corr
+
+def compute_association(df, var_x, type_var_x, var_y, type_var_y):
+    
+    if (type_var_x == 'numerical') & (type_var_y == 'numerical'):
+        # Pearson
+        cond = df[var_x].isnull() | df[var_y].isnull()
+        df_new = df[~cond]
+        pears = pearsonr(df_new[var_x], df_new[var_y])
+        assoc = np.abs(pears[0])
+    elif ((type_var_x == 'numerical') & (type_var_y == 'categorical')) :
+        # eta coefficient
+        assoc = eta(df, var_y, var_x)
+    elif ((type_var_x == 'categorical') & (type_var_y == 'numerical')):
+        assoc = eta(df, var_x, var_y)
+    elif (type_var_x == 'categorical') & (type_var_y == 'categorical'):
+        #Thiel's U coefficient
+        assoc = theil_U(df, var_x, var_y)
+    
+    return assoc
+        
+    
+
+
+def associations(dataframe, numerical_vars, categorical_vars, target, target_type='numerical', cmap='coolwarm'):
     '''
-    Uses dython to compute associations
     - Numerical vs numerical: pearson's correlation coefficient
     - Categorical vs Categorical: Thiels U coefficient
     - Categorical vs Numerical: Correlation ratio (eta)
     '''
-    df_corr = nominal.compute_associations(dataframe, theil_u=True, clustering=True,
-                    nan_strategy='drop_samples',
-                    mark_columns=True)
+    #df_corr = nominal.compute_associations(dataframe, theil_u=True, clustering=True,
+    #                nan_strategy='drop_samples',
+    #                mark_columns=True)
+    #if (target_type == 'numerical'):
+    #    numerical_vars = [target] + numerical_vars
+    #elif (target_type == 'categorical'):
+    #    categorical_vars = [target] + categorical_vars
+    
+    numerical_vars_dict = {k: 'numerical' for k in numerical_vars}
+    categorical_vars_dict = {k: 'categorical' for k in categorical_vars}
+    all_vars = {**numerical_vars_dict, **categorical_vars_dict}
+    all_vars_lst = numerical_vars + categorical_vars
+    
+    target_corr = pd.Series(index=[target] + all_vars_lst)
+    target_corr.loc[target] = 1.
+    for j in all_vars_lst:
+        target_corr.loc[j] = compute_association(dataframe, target, target_type, j, all_vars[j])
+    
+    
+    idx = ["{} ({})".format(target, target_type[0:3])] +  ["{} ({})".format(c, all_vars[c][0:3]) for c in all_vars_lst]
+    df_corr = pd.DataFrame(index=[target] + all_vars_lst, columns=[target] + all_vars_lst, dtype="float")
+    df_corr.loc[target, :] = target_corr
+    df_corr.loc[:, target] = target_corr
+
+    for i in all_vars_lst:
+        for j in all_vars_lst:
+            if (i != j):
+                df_corr.loc[i, j] = float(compute_association(dataframe, i, all_vars[i], j, all_vars[j]))
+            else:
+                df_corr.loc[i, j] = 1.
+    
+    df_corr.index = idx
+    df_corr.columns = idx
     df_corr_ordered = df_corr.stack().reset_index()
     df_corr_ordered.columns = ["Var_y", "Var_x", "Corr"]
     df_corr_ordered = df_corr_ordered.sort_values("Corr", ascending=False)
 
     fig, ax = plt.subplots(figsize=(10, 10))
     g = sns.heatmap(df_corr, annot = True, fmt='.2g',
-                   vmin=-1, vmax=1, center= 0, cmap=cmap, 
+                   vmin=0, vmax=1, center= 0, cmap=cmap, 
                    linewidths=2, linecolor='black', ax=ax)
     ax.set_xticklabels(ax.get_xticklabels(), rotation=45)
     
-    plt.show()
+    #plt.show()
     
-    return (df_corr, df_corr_ordered, (fig, ax)) 
+    return (df_corr, df_corr_ordered, (fig, ax))
+
 
 
 def compute_summary_categorical(dataframe, column):
