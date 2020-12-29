@@ -37,7 +37,7 @@ The association matrix handles both numerical and categorical variables:
 
 * For numerical vs numerical variables, the **absolute value** of the Pearson's correlation coefficient is computed. The absolute value ensures the range is between 0 and 1 like the other quantities.
 * For numerical vs categorical variables, the [correlation ratio](https://en.wikipedia.org/wiki/Correlation_ratio) ![formula](https://render.githubusercontent.com/render/math?math=\eta) is computed.
-* For categorical vs categorical variables, the [Theil's U coefficient](https://en.wikipedia.org/wiki/Uncertainty_coefficient) is computed.
+* For categorical vs categorical variables, the [Theil's U coefficient](https://en.wikipedia.org/wiki/Uncertainty_coefficient) is computed. Be aware that this is not a symmetrical measure.
 
 It is possible to acces the matrix directly from the summary dictionary:
 
