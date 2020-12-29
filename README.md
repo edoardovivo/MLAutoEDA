@@ -4,21 +4,52 @@ Helper functions to automate Exploratory Data Analysis. The focus is mainly on t
 
 ## Quick start
 
-In order to perform automatic EDA on your dataset, you need to import the library, define wich variables are numerical and which are categorical, and which one is the target. The method `summaryEDA`  will compute summaries and charts and output a dictionary of all the data generated. 
+In order to perform automatic EDA on your dataset, you need to import the library, define wich variables are numerical and which are categorical, and which one is the target. In order for the calculation of the association metrics to work properly, it is also suggested that all missing values for the categorical variables be replaced by one or more explicit values. The method `summaryEDA`  will compute summaries and charts and output a dictionary of all the data generated. 
 ```
 import AutoEDA.AutoEDA as eda
 
 numerical_vars = ['Age', 'SibSp', 'Fare']
 categorical_vars = ['Pclass', 'Sex', 'Ticket', 'Cabin', 'Embarked']
 target = 'Survived'
+
+dataframe[categorical_vars] = dataframe[categorical_vars].astype("category")
+for c in categorical_vars:
+    if ("Unknown" not in dataframe[c].cat.categories):
+        dataframe.loc[:, c] = dataframe[c].cat.add_categories("Unknown").fillna("Unknown")
+        
 summary_dict = eda.summaryEDA(dataframe, numerical_vars, categorical_vars, target, target_type='categorical')
 ```
 
 The dictionary will contain the summary data for various combination of the variables and the target, as well as the matplotlib figure and axes handles so that they can be rendered and modified afterwards. You can also save the dictionary as a pickle file to avoid computing it multiple times.
 
+
 ## Types of charts and summaries
 
 This library produces different types of charts and summaries depending on the combination of the types of variables to plot. The library handles univariate, bi-variate (variable vs target) and tri-variate (2 variables vs target) plots.
+
+### Associations
+
+The summary dictionary contains the summary of associations between variables, as well as the figure and axis handles for the association matrix:
+
+![Associations](https://github.com/edoardovivo/AutoEDA/blob/develop/img/associations.png)
+
+The association matrix handles both numerical and categorical variables:
+
+* For numerical vs numerical variables, the **absolute value** of the Pearson's correlation coefficient is computed. The absolute value ensures the range is between 0 and 1 like the other quantities.
+* For numerical vs categorical variables, the [correlation ratio](https://en.wikipedia.org/wiki/Correlation_ratio) ![formula](https://render.githubusercontent.com/render/math?math=\eta) is computed.
+* For categorical vs categorical variables, the [Theil's U coefficient](https://en.wikipedia.org/wiki/Uncertainty_coefficient) is computed.
+
+It is possible to acces the matrix directly from the summary dictionary:
+
+```
+summary_dict['associations']['df_corr']
+summary_dict['associations']['df_corr_ordered']
+```
+
+`df_corr_ordered` is the unstacked version of the `df_corr` matrix, ordered from higher to lower value. 
+
+
+### Plots and summaries
 
 #### Univariate
 
