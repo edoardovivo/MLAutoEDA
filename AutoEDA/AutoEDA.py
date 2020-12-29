@@ -75,16 +75,17 @@ def conditional_entropy(df, var_cat1, var_cat2):
     # Computes p(x, y)
     joint_dist = pd.crosstab(index=df[var_cat1], columns=df[var_cat2], normalize='all', dropna=False, ).unstack().reset_index().rename(columns={0: 'P(x,y)'})
 
-    # If the joint dist is zero for some values, I do not have to compute the log
-    #cond = joint_dist["P(x,y)"] == 0.
-    #joint_dist = joint_dist[~cond]
+    
     #Computes p(y)
     var_cat2_dist = df[var_cat2].value_counts(normalize=True, dropna=False).rename_axis(var_cat2).reset_index(name='P(y)')
     
     # Joins dataframes
     df_dist = pd.merge(joint_dist, var_cat2_dist, on=var_cat2)
     
-
+    # If the dist is zero for some values, I do not have to compute the log
+    #cond = df_dist["P(y)"] == 0.
+    #df_dist = df_dist[~cond]
+    
     #Computes log(p(x,y) / p(y))
     df_dist["LogProb"] = np.log(df_dist["P(x,y)"] / df_dist["P(y)"])
     df_dist.loc[df_dist["LogProb"] == -np.inf, "LogProb"] = 0.
@@ -570,6 +571,15 @@ def summaryEDA(dataframe, numerical_vars, categorical_vars, target, target_type=
     Computes univariate, bivariate and trivariate summaries and charts and stores them in a dictionary
     '''
     summary_dict = {}
+    
+    #Associations
+    summary_dict['associations'] = {}
+    df_corr, df_corr_ordered, (fig,ax) =  associations(dataframe, numerical_vars, categorical_vars, target, target_type)
+    summary_dict['associations']['df_corr'] = df_corr
+    summary_dict['associations']['df_corr_ordered'] = df_corr_ordered
+    summary_dict['associations']['figure'] = fig
+    summary_dict['associations']['axes'] = ax
+    
     
     
     # Univariate plots and summaries
