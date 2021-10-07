@@ -31,7 +31,7 @@ This library produces different types of charts and summaries depending on the c
 
 The summary dictionary contains the summary of associations between variables, as well as the figure and axis handles for the association matrix:
 
-![Associations](https://github.com/edoardovivo/AutoEDA/blob/develop/img/associations.png)
+![Associations](https://raw.githubusercontent.com/edoardovivo/AutoEDA/blob/develop/img/associations.png)
 
 The association matrix handles both numerical and categorical variables:
 
