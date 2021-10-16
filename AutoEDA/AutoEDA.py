@@ -56,6 +56,25 @@ class AutoEDA:
     
     
     def __init__(self, dataframe, numerical_vars, categorical_vars, target, target_type):
+        
+        """
+        Instantiates an AutoEDA object.
+        
+
+        :param dataframe: The dataset.
+        :type dataframe: pandas DataFrame
+        :param numerical_vars: List of names of numerical variables.
+        :type numerical_vars: list
+        :param categorical_vars: List of names of categorical variables.
+        :type categorical_vars: list
+        :param target: The name of the target variable.
+        :type target: string
+        :param target_type: The type of the target variable.
+        :type target_type: string
+        
+        """
+        
+        
         self.dataframe = dataframe
         self.numerical_vars = numerical_vars
         self.categorical_vars = categorical_vars
@@ -65,7 +84,19 @@ class AutoEDA:
 
 
     def entropy(self, var_cat):
-        #Entropy H(var_cat)
+        
+        
+        """
+        Entropy of a categorical variable H(var_cat)
+        
+        :param var_cat: The name of the variable.
+        :type var_cat: string
+    
+        :return: The entropy of the variable.
+        :rtype: double
+        """
+        
+        
         df = self.dataframe
         if ("Unknown" not in df[var_cat].cat.categories):
             df.loc[:, var_cat] = df[var_cat].cat.add_categories("Unknown").fillna("Unknown")
@@ -77,6 +108,18 @@ class AutoEDA:
 
     def conditional_entropy(self, var_cat1, var_cat2):
         # Conditional Entropy H(X | Y) = H(cat1 | cat2) = - sum ( p(x,y)*log( p(x,y)/p(y) )  )
+        
+        """
+        Conditional entropy of var_cat1 given var_cat2:  H(var_cat1 | var_cat2) = - sum ( p(x,y)*log( p(x,y)/p(y) )  )
+        
+        :param var_cat1: The name of the first categorical variable.
+        :type var_cat1: string
+        :param var_cat2: The name of the second categorical variable.
+        :type var_cat2: string
+    
+        :return: The conditional entropy.
+        :rtype: double
+        """
 
         df = self.dataframe
         #df.loc[:, var_cat1] = df[var_cat1].cat.add_categories("Unknown").fillna("Unknown")
@@ -108,6 +151,18 @@ class AutoEDA:
 
     def eta(self, var_cat, var_num):
         
+        """
+        Correlation ratio between a categorical variable and a numerical one
+        
+        :param var_cat: The name of the categorical variable.
+        :type var_cat: string
+        :param var_num: The name of the numerical variable.
+        :type var_num: string
+    
+        :return: The correlation ratio eta.
+        :rtype: double
+        """
+        
         df = self.dataframe
         cat = df[var_cat]
         num = df[var_num]
@@ -123,6 +178,20 @@ class AutoEDA:
 
 
     def theil_U(self, var_cat1, var_cat2):
+        
+        """
+        Theil's U coefficient between two categorical variables
+        
+        :param var_cat1: The name of the first categorical variable.
+        :type var_cat1: string
+        :param var_cat2: The name of the second categorical variable.
+        :type var_cat2: string
+    
+        :return: The Theil's U coefficient.
+        :rtype: double
+        """
+        
+        
         df = self.dataframe
         h1 = self.entropy(var_cat1)
         h12 = self.conditional_entropy(var_cat1, var_cat2)
@@ -142,6 +211,26 @@ class AutoEDA:
     #df_corr
 
     def compute_association(self, var_x, type_var_x, var_y, type_var_y):
+        
+        """
+        Compute's association between two variables:
+        * If both variables are numerical, returns the absolute value of the Pearson's correlation coefficient.
+        * If one variable is numerical and the other is categorical, then it returns the correlation ratio eta.
+        * If both variables are categorical, it returns the Theil's U coefficient.
+        
+        :param var_x: The name of the first variable.
+        :type var_x: string
+        :param type_var_x: The type of the first variable (can be 'numerical' or 'categorical')
+        :type type_var_x: string
+        :param var_y: The name of the second variable.
+        :type var_y: string
+        :param type_var_y: The type of the second variable (can be 'numerical' or 'categorical')
+        :type type_var_y: string
+    
+        :return: The value of the association depending on the type of the two variables.
+        :rtype: double
+        """
+        
         
         df = self.dataframe
         if (type_var_x == 'numerical') & (type_var_y == 'numerical'):
@@ -165,11 +254,18 @@ class AutoEDA:
 
 
     def associations(self, cmap='coolwarm'):
-        '''
-        - Numerical vs numerical: pearson's correlation coefficient
-        - Categorical vs Categorical: Thiels U coefficient
-        - Categorical vs Numerical: Correlation ratio (eta)
-        '''
+        """
+        Computes the association matrix between all variables in the dataset.
+                
+        :param cmap: The colormap to apply to the graph.
+        :type cmap: string
+    
+        :return: A tuple with: 
+            * Correlation matrix
+            * Unstacked version of the correlation matrix, ordered from higher to lower value
+            * A tuple with figure and axis handles
+        :rtype: tuple
+        """
         #df_corr = nominal.compute_associations(dataframe, theil_u=True, clustering=True,
         #                nan_strategy='drop_samples',
         #                mark_columns=True)
@@ -220,6 +316,17 @@ class AutoEDA:
 
 
     def compute_summary_categorical(self, column):
+        
+        """
+        Computes the summary for a categorical variable:
+                
+        :param column: The name of the variable.
+        :type column: string
+    
+        :return: A dataframe with normalized and unnormalized value_counts
+        :rtype: pandas DataFrame
+        """
+        
         d = {}
         c = self.dataframe[column].value_counts(dropna=False)
         p = self.dataframe[column].value_counts(dropna=False, normalize=True)
@@ -229,6 +336,20 @@ class AutoEDA:
 
 
     def compute_summary_numerical_vs_categorical(self, column_num, column_cat):
+        
+        """
+        Computes the summary for a numerical vs categorical variable. The summary is an overall `describe` for the numerical variable, along with a `describe` for each value of the target variable.
+                
+        :param column_num: The name of the numerical variable.
+        :type column_num: string
+        
+        :param column_cat: The name of the categorical variable.
+        :type column_cat: string
+    
+        :return: A dataframe with the overall `describe` for the numerical variable, along with a `describe` for each value of the target variable. 
+        :rtype: pandas DataFrame
+        """
+        
         d1 = self.dataframe[column_num].describe()
         d2 = self.dataframe.groupby(column_cat)[column_num].describe().transpose()
         d2.columns = ["{}_{}:{}".format(column_num, column_cat,c) for c in d2.columns]
@@ -238,7 +359,24 @@ class AutoEDA:
 
 
     def compute_summary_categorical_vs_categorical(self, column_cat1, column_cat2, normalize='both'):
-
+        
+        """
+        Computes the summary for a categorical vs categorical variable. If `normalize=both`, the summary consists of two crosstabs, one with a count and another one with percentages computed over the target. Otherwise, only one of the two crosstabs is returned.
+                
+        :param column_cat1: The name of the first categorical variable.
+        :type column_cat1: string
+        
+        :param column_cat2: The name of the second categorical variable.
+        :type column_cat2: string
+        
+        :param normalize: Can be 'yes', 'no' or 'both'. 
+        :type normalize: string
+        
+    
+        :return: Crosstab dataframes depending on the value of normalize
+        :rtype: pandas DataFrame or tuple of pandas DataFrames
+        """
+        
         if (normalize == 'yes'):
             d2 = pd.crosstab(index=self.dataframe[column_cat1], columns=self.dataframe[column_cat2], margins=True, normalize='index')
             return d2
@@ -254,11 +392,47 @@ class AutoEDA:
 
 
     def compute_summary_numerical_vs_numerical(self, column_num1, column_num2):
+        
+        """
+        Computes the summary for a numerical vs numerical variable. The summary is a combination of the single-variable summaries given by the `describe` function in pandas.
+                
+        :param column_num1: The name of the first numerical variable.
+        :type column_num1: string
+        
+        :param column_num2: The name of the second numerical variable.
+        :type column_num2: string
+        
+    
+        :return: describe dataframe
+        :rtype: pandas DataFrame
+        """
+        
         return self.dataframe[[column_num1, column_num2]].describe()
 
 
     def compute_summary_2categorical_vs_categorical(self, column_cat1, column_cat2, column_cat3, normalize='both'):
-
+        
+        """
+        Computes the summary for two categorical vs another categorical variable. If `normalize=both`, the summaries are two hierarchical crosstabs, where the target is in the columns. The first one is for the counts and the second one is for percentages. Otherwise, only one of the crosstabs is returned.
+                
+        :param column_cat1: The name of the first categorical variable.
+        :type column_cat1: string
+        
+        :param column_cat2: The name of the second categorical variable.
+        :type column_cat2: string
+        
+        :param column_cat3: The name of the third categorical variable.
+        :type column_cat3: string
+        
+        :param normalize: Can be 'yes', 'no' or 'both'. 
+        :type normalize: string
+        
+    
+        :return: Crosstab dataframes depending on the value of normalize
+        :rtype: pandas DataFrame or tuple of pandas DataFrames
+        """
+        
+        
         if (normalize == 'yes'):
             d2 = pd.crosstab(index=[self.dataframe[column_cat1], self.dataframe[column_cat2]], columns=self.dataframe[column_cat3], margins=True, normalize='index')
             return d2
@@ -274,7 +448,25 @@ class AutoEDA:
 
 
     def compute_summary_2categorical_vs_numerical(self, column_cat1, column_cat2, column_num):    
-
+        
+        """
+        Computes the summary for two categorical vs a numerical variable. The summary is a `describe` statement for each combination of the two categorical variables.
+                
+        :param column_cat1: The name of the first categorical variable.
+        :type column_cat1: string
+        
+        :param column_cat2: The name of the second categorical variable.
+        :type column_cat2: string
+        
+        :param column_num: The name of the numerical variable.
+        :type column_num: string
+      
+    
+        :return: Dataframe with a `describe` statement for each combination of the two categorical variables.
+        :rtype: pandas DataFrame
+        """
+        
+        
         d1 = self.dataframe[column_num].describe().to_frame(column_num)
         d2 = self.dataframe.groupby([column_cat1, column_cat2])[column_num].describe()
         d2.index = ["{}_{}:{}_{}:{}".format(column_num, column_cat1, x[0], column_cat2, x[1]) for x in d2.index.to_flat_index()]
@@ -282,6 +474,26 @@ class AutoEDA:
 
 
     def compute_summary_2numerical_vs_categorical(self, column_num1, column_num2, column_cat):
+        
+        
+        """
+        Computes the summary for two numerical vs a categorical variable. The summary is a `describe` statement for each of the numerical variables, along with `describe` statements for each value of the target. 
+                
+        :param column_num1: The name of the first numerical variable.
+        :type column_num1: string
+        
+        :param column_num2: The name of the second numerical variable.
+        :type column_num2: string
+        
+        :param column_cat: The name of the categorical variable.
+        :type column_cat: string
+        
+    
+        :return: Dataframe with a `describe` statement for each of the numerical variables, along with `describe` statements for each value of the categorical variable. 
+        :rtype: pandas DataFrame
+        """
+        
+        
         d1 = self.dataframe[[column_num1, column_num2]].describe()
         d2 = self.dataframe.groupby([column_cat])[column_num1].describe().transpose()
         d2.columns = ["{}_{}:{}".format(column_num1, column_cat, x) for x in d2.columns ]
@@ -292,6 +504,25 @@ class AutoEDA:
 
 
     def compute_summary_2numerical_vs_numerical(self, column_num1, column_num2, column_num3):
+        
+        """
+        Computes the summary for two numerical vs a numerical variable. The summary is a `describe` statement for each of the variables.
+                
+        :param column_num1: The name of the first numerical variable.
+        :type column_num1: string
+        
+        :param column_num2: The name of the second numerical variable.
+        :type column_num2: string
+        
+        :param column_num3: The name of the third numerical variable.
+        :type column_num3: string
+        
+    
+        :return: Dataframe with `describe` statement for each of the variables.
+        :rtype: pandas DataFrame
+        """
+        
+        
         return self.dataframe[[column_num1, column_num2, column_num3]].describe()
 
 
