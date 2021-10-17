@@ -528,6 +528,23 @@ class AutoEDA:
 
 
     def categorical_univariate(self, column, palette, show_plot=True):
+        
+        """
+        Computes the summary and the corresponding plot for a categorical variable
+                
+        :param column: The name of the categorical variable.
+        :type column: string
+        
+        :param palette: The color palette for the plot.
+        :type palette: string
+        
+        :param show_plot: Whether or not to show the plot.
+        :type show_plot: bool
+        
+    
+        :return: tuple with figure and axis handles, and the summary dataframe
+        :rtype: tuple
+        """
 
         df_summary = self.compute_summary_categorical(column)
 
@@ -548,7 +565,25 @@ class AutoEDA:
 
 
     def numerical_univariate(self, column, palette, show_plot=True):
-
+        
+        """
+        Computes the summary and the corresponding plot for a numerical variable
+                
+        :param column: The name of the numerical variable.
+        :type column: string
+        
+        :param palette: The color palette for the plot.
+        :type palette: string
+        
+        :param show_plot: Whether or not to show the plot.
+        :type show_plot: bool
+        
+    
+        :return: tuple with figure and axis handles, and the summary dataframe
+        :rtype: tuple
+        """
+        
+        
         df_summary = self.dataframe[column].describe()
 
         fig, axs = plt.subplots(1, 2,figsize=(10,8))
@@ -572,7 +607,30 @@ class AutoEDA:
 
 
 
-    def categorical_vs_categorical(self, column_cat1, column_cat2, palette):
+    def categorical_vs_categorical(self, column_cat1, column_cat2, palette, show_plot=True):
+        
+        """
+        Computes the summary and the corresponding plot for categorical vs categorical variables. This produces two plots: a bar plot, grouped by the target, with the percentages of records in each group, and a countplot grouped by the target variable. In the percentage plot, the overall proportions for each level of the target variable are marked with vertical dashed lines, for comparison
+                
+        :param column_cat1: The name of the first categorical variable.
+        :type column_cat1: string
+        
+        :param column_cat2: The name of the second categorical variable.
+        :type column_cat2: string
+        
+        :param palette: The color palette for the plot.
+        :type palette: string
+        
+        :param show_plot: Whether or not to show the plot.
+        :type show_plot: bool
+        
+    
+        :return: tuple with figure and axis handles, and the summary dataframe
+        :rtype: tuple
+        """
+        
+        
+        
         #plt.table(cellText=dcsummary.values,colWidths = [0.25]*len(dc.columns),
         #      rowLabels=dcsummary.index,
         #      colLabels=dcsummary.columns,
@@ -631,13 +689,35 @@ class AutoEDA:
                       palette=palette, ax=ax[1])
         ax[1].set_title("Values")
         plt.tight_layout()
-
-        plt.show()
+        
+        if (show_plot):
+            plt.show()
 
         return (fig, ax), df_summary
 
 
-    def categorical_vs_numerical(self, column_num, column_cat, palette):
+    def categorical_vs_numerical(self, column_num, column_cat, palette, show_plot=True):
+        
+        """
+        Computes the summary and the corresponding plot for categorical vs numerical variables. TThis produces two plots: a boxplot for the distribution of the target for each value of the categorical variable, and a kde plot showing the distributions. The boxplot also features the overall mean and median of the target, for comparison.
+                
+        :param column_num: The name of the numerical variable.
+        :type column_num: string
+        
+        :param column_cat: The name of the categorical variable.
+        :type column_cat: string
+        
+        :param palette: The color palette for the plot.
+        :type palette: string
+        
+        :param show_plot: Whether or not to show the plot.
+        :type show_plot: bool
+        
+    
+        :return: tuple with figure and axis handles, and the summary dataframe
+        :rtype: tuple
+        """
+        
         #plt.table(cellText=dcsummary.values,colWidths = [0.25]*len(dc.columns),
         #      rowLabels=dcsummary.index,
         #      colLabels=dcsummary.columns,
@@ -675,15 +755,40 @@ class AutoEDA:
 
 
         plt.tight_layout()
-
-        plt.show()
+        
+        if (show_plot):
+            plt.show()
 
         return (fig, ax), df_summary
 
 
 
 
-    def numerical_vs_numerical(self, column_num1, column_num2, palette):
+    def numerical_vs_numerical(self, column_num1, column_num2, palette, show_plot=True):
+        
+        
+        
+        """
+        Computes the summary and the corresponding plot for numerical vs numerical variables. In this case, a scatterplot is produced.
+                
+        :param column_num1: The name of the first numerical variable.
+        :type column_num1: string
+        
+        :param column_num2: The name of the second numerical variable.
+        :type column_num2: string
+        
+        :param palette: The color palette for the plot.
+        :type palette: string
+        
+        :param show_plot: Whether or not to show the plot.
+        :type show_plot: bool
+        
+    
+        :return: tuple with figure and axis handles, and the summary dataframe
+        :rtype: tuple
+        """
+        
+        
         # Numerical vs Numerical target --> Describe for both variable and target; Scatterplot
         df_summary = self.dataframe[[column_num1, column_num2]].describe()
         #corr = dataframe[[column_num1, column_num2]].corr()
@@ -691,18 +796,46 @@ class AutoEDA:
         fig, ax = plt.subplots(1, 1, figsize=(15,10))
 
         sns.scatterplot(data=self.dataframe, x=column_num1, y=column_num2,  palette=palette, ax=ax)
-
-
-        plt.show()
+        
+        if (show_plot):
+            plt.show()
 
         return (fig, ax), df_summary
 
 
 
-    def two_categorical_vs_categorical(self, column_cat1, column_cat2, column_cat3, palette):
+    def two_categorical_vs_categorical(self, column_cat1, column_cat2, column_cat3, palette, show_plot=True):
+        
+        
+        """
+        Computes the summary and the corresponding plot for two categorical vs categorical variables. This produces two graphs for each value of the target variable. On the left, a heatmap with the proportion of records with that target value for each combination of the two categorical variables. On the left, the same heatmap, with the values "shifted" with respect to the overall rate of the target variable. 
+                
+        :param column_cat1: The name of the first categorical variable.
+        :type column_cat1: string
+        
+        :param column_cat2: The name of the second categorical variable.
+        :type column_cat2: string
+        
+        :param column_cat3: The name of the third categorical variable.
+        :type column_cat3: string
+        
+        :param palette: The color palette for the plot.
+        :type palette: string
+        
+        :param show_plot: Whether or not to show the plot.
+        :type show_plot: bool
+        
+    
+        :return: tuple with figure and axis handles, and the summary dataframe
+        :rtype: tuple
+        """
+        
+        
+        
         '''
         2 Categorical vs Categorical target --> Count + pct for each category and target category; Count + pct for each target category; For each value of target (column_cat3), two heatmaps: one with percentages of the corresponding value for each pair of category values, and one with the difference between the first one, and the pct of the target value without grouping (baseline).
         '''
+        
         df_summary = self.compute_summary_2categorical_vs_categorical(column_cat1, column_cat2, column_cat3)
 
         target_values = self.dataframe[column_cat3].unique().tolist()
@@ -733,14 +866,40 @@ class AutoEDA:
             sns.heatmap(df_heatmap2, annot=True, ax=ax3)
             ax3.set_title("Percentage increase of {} = {} wrt baseline".format(column_cat3, target_value))
 
-
-        plt.show()
+        if (show_plot):
+            plt.show()
 
         return (fig, ax), df_summary
 
 
 
-    def two_categorical_vs_numerical(self, column_cat1, column_cat2, column_num, palette):
+    def two_categorical_vs_numerical(self, column_cat1, column_cat2, column_num, palette, show_plot=True):
+        
+        """
+        Computes the summary and the corresponding plot for two categorical vs numerical variables. This produces a grouped boxplot for the distribution of the numerical variable. 
+                
+        :param column_cat1: The name of the first categorical variable.
+        :type column_cat1: string
+        
+        :param column_cat2: The name of the second categorical variable.
+        :type column_cat2: string
+        
+        :param column_num: The name of the numerical variable.
+        :type column_num: string
+        
+        :param palette: The color palette for the plot.
+        :type palette: string
+        
+        :param show_plot: Whether or not to show the plot.
+        :type show_plot: bool
+        
+    
+        :return: tuple with figure and axis handles, and the summary dataframe
+        :rtype: tuple
+        """
+        
+        
+        
         '''
         2 categorical vs numerical target --> Grouped boxplot with x=categorical, y=target, hue=categorical
         '''
@@ -764,13 +923,41 @@ class AutoEDA:
         ax.axhline(mn, color="red", label="Ungrouped Mean")
         ax.axhline(med, color="black", label="Ungrouped Median")
         ax.legend()
-
-        plt.show()
+        
+        if (show_plot):
+            plt.show()
 
         return (fig, ax), df_summary
 
 
-    def two_numerical_vs_categorical(self, column_num1, column_num2, column_cat, palette):
+    def two_numerical_vs_categorical(self, column_num1, column_num2, column_cat, palette, show_plot=True):
+        
+        
+        """
+        Computes the summary and the corresponding plot for two numerical vs categorical variables. This produces a scatterplot of the two numerical variables, with a hue for each level of the target.
+                
+        :param column_num1: The name of the first numerical variable.
+        :type column_num1: string
+        
+        :param column_num2: The name of the second numerical variable.
+        :type column_num2: string
+        
+        :param column_cat The name of the categorical variable.
+        :type column_cat: string
+        
+        :param palette: The color palette for the plot.
+        :type palette: string
+        
+        :param show_plot: Whether or not to show the plot.
+        :type show_plot: bool
+        
+    
+        :return: tuple with figure and axis handles, and the summary dataframe
+        :rtype: tuple
+        """
+        
+        
+        
         '''
         2 Numerical vs Categorical target --> Scatterplot with hue=target
         '''
@@ -781,13 +968,38 @@ class AutoEDA:
 
         sns.scatterplot(data=self.dataframe, x=column_num1, y=column_num2,  hue=column_cat, palette=palette, ax=ax)
 
-
-        plt.show()
+        if (show_plot):
+            plt.show()
 
         return (fig, ax), df_summary
 
 
-    def two_numerical_vs_numerical(self, column_num1, column_num2, column_num3, palette):
+    def two_numerical_vs_numerical(self, column_num1, column_num2, column_num3, palette, show_plot=True):
+        
+        """
+        Computes the summary and the corresponding plot for two numerical vs categorical variables. This produces a hexbin plot where the value of the target variable is represented as a color gradient.
+                
+        :param column_num1: The name of the first numerical variable.
+        :type column_num1: string
+        
+        :param column_num2: The name of the second numerical variable.
+        :type column_num2: string
+        
+        :param column_num3 The name of the third numerical variable.
+        :type column_num3: string
+        
+        :param palette: The color palette for the plot.
+        :type palette: string
+        
+        :param show_plot: Whether or not to show the plot.
+        :type show_plot: bool
+        
+    
+        :return: tuple with figure and axis handles, and the summary dataframe
+        :rtype: tuple
+        """
+        
+        
         '''
         2 Numerical vs numerical target --> hexbin
         '''
@@ -805,17 +1017,37 @@ class AutoEDA:
         ax.set_title("HexBin Plot")
         cb = fig.colorbar(hb, ax=ax)
         cb.set_label(column_num3)
-
-        plt.show()
+        
+        
+        if (show_plot):
+            plt.show()
 
         return (fig, ax), df_summary
 
 
 
     def summaryEDA(self, show_plot=False, palette=None):
-        '''
-        Computes univariate, bivariate and trivariate summaries and charts and stores them in a dictionary
-        '''
+        
+        
+        """
+        Computes univariate, bivariate and trivariate summaries and charts and stores them in a dictionary.
+        
+         
+        :param show_plot: Whether or not to show the plots.
+        :type show_plot: bool
+        
+        :param palette: The color palette to use in the plots.
+        :type palette: string
+        
+    
+        :return: Dictionary with all the summaries, figure and axes handles
+        :rtype: dictionary
+        
+        
+        """
+        
+        
+        
         summary_dict = {}
 
         #Associations
@@ -847,9 +1079,9 @@ class AutoEDA:
         # Numerical vs target
         for num_var in self.numerical_vars:
             if (self.target_type == 'numerical'):
-                (fig, axs), df_summary = self.numerical_vs_numerical(num_var, self.target, palette)
+                (fig, axs), df_summary = self.numerical_vs_numerical(num_var, self.target, palette, show_plot)
             elif (self.target_type == 'categorical'):
-                (fig, axs), df_summary = self.categorical_vs_numerical( num_var, self.target, palette)
+                (fig, axs), df_summary = self.categorical_vs_numerical( num_var, self.target, palette, show_plot)
             k = (num_var, self.target)
             summary_dict[k] = {}
             summary_dict[k]['figure'] = fig
@@ -859,9 +1091,9 @@ class AutoEDA:
         # Categorical vs target
         for cat_var in self.categorical_vars:
             if (self.target_type == 'numerical'):
-                (fig, axs), df_summary = self.categorical_vs_numerical(self.target, cat_var, palette)
+                (fig, axs), df_summary = self.categorical_vs_numerical(self.target, cat_var, palette, show_plot)
             elif (self.target_type == 'categorical'):
-                (fig, axs), df_summary = self.categorical_vs_categorical(cat_var, self.target, palette)
+                (fig, axs), df_summary = self.categorical_vs_categorical(cat_var, self.target, palette, show_plot)
             k = (cat_var, self.target)
             summary_dict[k] = {}
             summary_dict[k]['figure'] = fig
@@ -873,9 +1105,9 @@ class AutoEDA:
             for j, num_var_j in enumerate(self.numerical_vars):
                 if (i < j):
                     if (self.target_type == 'numerical'):
-                        (fig, axs), df_summary = self.two_numerical_vs_numerical(num_var_i, num_var_j, self.target, palette)
+                        (fig, axs), df_summary = self.two_numerical_vs_numerical(num_var_i, num_var_j, self.target, palette, show_plot)
                     elif (self.target_type == 'categorical'):
-                        (fig, axs), df_summary = self.two_numerical_vs_categorical( num_var_i, num_var_j, self.target, palette)
+                        (fig, axs), df_summary = self.two_numerical_vs_categorical( num_var_i, num_var_j, self.target, palette, show_plot)
                     k = (num_var_i, num_var_j, self.target)
                     summary_dict[k] = {}
                     summary_dict[k]['figure'] = fig
@@ -888,9 +1120,9 @@ class AutoEDA:
             for j, cat_var_j in enumerate(self.categorical_vars):
                 if (i < j):
                     if (self.target_type == 'numerical'):
-                        (fig, axs), df_summary = self.two_categorical_vs_numerical(cat_var_i, cat_var_j, self.target, palette)
+                        (fig, axs), df_summary = self.two_categorical_vs_numerical(cat_var_i, cat_var_j, self.target, palette, show_plot)
                     elif (self.target_type == 'categorical'):
-                        (fig, axs), df_summary = self.two_categorical_vs_categorical(cat_var_i, cat_var_j, self.target, palette)
+                        (fig, axs), df_summary = self.two_categorical_vs_categorical(cat_var_i, cat_var_j, self.target, palette, show_plot)
                     k = (cat_var_i, cat_var_j, self.target)
                     summary_dict[k] = {}
                     summary_dict[k]['figure'] = fig
@@ -901,9 +1133,9 @@ class AutoEDA:
         for i, num_var_i in enumerate(self.numerical_vars):
             for j, cat_var_j in enumerate(self.categorical_vars):
                 if (self.target_type == 'numerical'):
-                    (fig, axs), df_summary = self.two_numerical_vs_categorical(num_var_i, self.target, cat_var_j, palette)
+                    (fig, axs), df_summary = self.two_numerical_vs_categorical(num_var_i, self.target, cat_var_j, palette, show_plot)
                 elif (self.target_type == 'categorical'):
-                    (fig, axs), df_summary = self.two_categorical_vs_numerical(cat_var_j, self.target, num_var_i, palette)
+                    (fig, axs), df_summary = self.two_categorical_vs_numerical(cat_var_j, self.target, num_var_i, palette, show_plot)
                 k = (num_var_i, cat_var_j, self.target)
                 summary_dict[k] = {}
                 summary_dict[k]['figure'] = fig
