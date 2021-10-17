@@ -2,13 +2,14 @@ import unittest
 import math
 import pandas as pd
 import numpy as np
+import os
 from AutoEDA import AutoEDA
 
 
 class AutoEDATestCase(unittest.TestCase):
 
     def setUp(self):
-        DATA_PATH = os.path.join(os.getcwd(), '../titanic')
+        DATA_PATH = os.path.join(os.getcwd(), 'titanic')
         train_df = pd.read_csv(os.path.join(DATA_PATH, 'train.csv'))
         #test_df = pd.read_csv(os.path.join(DATA_PATH, 'test.csv'))
  
