@@ -24,7 +24,7 @@ setup(
     author_email="vivoedoardo@gmail.com",
     license="MIT",
     classifiers=[
-        "Intended Audience :: Data Scientist / Data Analysts",
+        "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
