@@ -14,8 +14,8 @@ with open(path.join(HERE, 'README.md'), encoding='utf-8') as f:
 
 # This call to setup() does all the work
 setup(
-    name="AutoEDA",
-    version="0.1.0",
+    name="MLAutoEDA",
+    version="0.2.0",
     description="Helper functions to automate Exploratory Data Analysis. The focus is mainly on typical Machine Learning datasets, where there is a target variable (numerical or categorical) and the aim of EDA is to get a sense of the data and whether the variables may be useful for the prediction or not.",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -34,7 +34,7 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Operating System :: OS Independent"
     ],
-    packages=["AutoEDA"],
+    packages=["MLAutoEDA"],
     include_package_data=True,
-    install_requires=["numpy", "pandas", "matplotlib", "seaborn"]
+    install_requires=["numpy", "pandas", "matplotlib", "seaborn", "scipy", "statsmodels"]
 )
