@@ -6,7 +6,7 @@ Helper functions to automate Exploratory Data Analysis. The focus is mainly on t
 
 In order to perform automatic EDA on your dataset, you need to import the library, define wich variables are numerical and which are categorical, and which one is the target. In order for the calculation of the association metrics to work properly, it is also suggested that all missing values for the categorical variables be replaced by one or more explicit values. The method `summaryEDA`  will compute summaries and charts and output a dictionary of all the data generated. 
 ```
-import AutoEDA.AutoEDA as eda
+from MLAutoEDA import MLAutoEDA
 
 numerical_vars = ['Age', 'SibSp', 'Fare']
 categorical_vars = ['Pclass', 'Sex', 'Ticket', 'Cabin', 'Embarked']
@@ -16,8 +16,9 @@ dataframe[categorical_vars] = dataframe[categorical_vars].astype("category")
 for c in categorical_vars:
     if ("Unknown" not in dataframe[c].cat.categories):
         dataframe.loc[:, c] = dataframe[c].cat.add_categories("Unknown").fillna("Unknown")
-        
-summary_dict = eda.summaryEDA(dataframe, numerical_vars, categorical_vars, target, target_type='categorical')
+
+auto_eda = MLAutoEDA(dataframe, numerical_vars, categorical_vars, target, target_type)
+summary_dict = auto_eda.summaryEDA()
 ```
 
 The dictionary will contain the summary data for various combination of the variables and the target, as well as the matplotlib figure and axes handles so that they can be rendered and modified afterwards. You can also save the dictionary as a pickle file to avoid computing it multiple times.
