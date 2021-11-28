@@ -1,4 +1,4 @@
-# AutoEDA
+# MLAutoEDA
 
 Helper functions to automate Exploratory Data Analysis. The focus is mainly on typical Machine Learning datasets, where there is a target variable (numerical or categorical) and the aim of EDA is to get a sense of the data and whether the variables may be useful for the prediction or not. 
 
