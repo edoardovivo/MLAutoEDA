@@ -3,6 +3,5 @@ pandas
 seaborn
 scipy
 matplotlib
-os
 statsmodels
 

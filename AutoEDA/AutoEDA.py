@@ -47,7 +47,6 @@ from matplotlib.gridspec import GridSpec
 import scipy.stats as stats
 import statsmodels.api as sm
 from matplotlib.widgets import Slider
-from dython import nominal
 from scipy.stats import pearsonr
 
 
