@@ -36,7 +36,8 @@ release = '0.1.0'
 extensions = [
     'recommonmark',
     'sphinx.ext.autodoc',
-    'sphinx.ext.viewcode'
+    'sphinx.ext.viewcode',
+    'm2r'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
