@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'AutoEDA'
+project = 'MLAutoEDA'
 copyright = '2021, Edoardo Vivo'
 author = 'Edoardo Vivo'
 

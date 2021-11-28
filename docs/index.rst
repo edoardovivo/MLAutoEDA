@@ -1,8 +1,8 @@
-Welcome to AutoEDA's documentation!
+Welcome to MLAutoEDA's documentation!
 ===========================================
 
 .. toctree::
    :maxdepth: 2
    :caption: Python API:
 
-   source/api/AutoEDA
+   source/api/MLAutoEDA
